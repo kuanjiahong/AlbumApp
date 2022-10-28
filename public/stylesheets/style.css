@@ -1,0 +1,180 @@
+body {
+  /* padding: 50px; */
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.hide {
+  display: none;
+}
+
+.container {
+  margin: 10px 0px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid black;
+  min-height: 100vh;
+}
+
+#media_container, #friends_list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+#media_navigation {
+  display: flex;
+  justify-content: space-around;
+}
+
+#media_navigation.hide {
+  display: none;
+}
+
+#friends_list {
+  border-bottom: 1px solid black;
+}
+
+#friends_list div {
+  margin: 10px;
+}
+
+.media {
+  margin: 5px;
+  text-align: center;
+}
+
+/* When user hover over the images or videos */
+.media:hover {
+  cursor: pointer;
+}
+
+/* When user hover over the friend list's names */
+.friend:hover {
+  cursor: pointer;
+  background-color: yellow;
+}
+
+/* For when the album is selected */
+.active {
+  background-color: yellow;
+}
+
+/* anchor tag with the disabled class name */
+a.disabled {
+  pointer-events: none;
+  color: gray;
+}
+
+
+
+/* Desktop size */
+@media screen and (min-width: 1020px) {
+  
+  .container {
+    flex-direction: row;
+  }
+
+  #friends_list {
+    flex-direction: column;
+    justify-content: start;
+    border-bottom: 0px;
+    border-right: 1px solid black;
+  }
+  
+}
+
+/* 
+.header {
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+}
+
+#greetings {
+  display: none;
+}
+
+#login, #logout {
+  margin-left: 0.5rem;
+}
+
+#login_container {
+  align-self: center;
+}
+
+.container {
+  display: grid;
+  border: 1px solid black;
+  grid-template-columns: 1fr 4fr;
+  grid-template-areas: 
+  "sidebar albums_container";
+  height: 100vh;
+  column-gap: 0.5rem;
+}
+
+#friends {
+  border-right: 1px solid black;
+  grid-area: sidebar;
+}
+
+#albums_container {
+  grid-area: albums_container;
+
+
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-areas: 
+  "a b c";
+}
+
+#a {
+  grid-area: a;
+}
+
+#b {
+  grid-area: b;
+}
+
+#c {
+  grid-area: c;
+}
+
+
+@media only screen and (max-width: 600px) {
+  .header {
+    display: inline
+  }
+  
+  #login_container label, #login_container input {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .container {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-areas: 
+    "sidebar" 
+    "albums_container";
+  }
+
+  #friends {
+    display: flex;
+    justify-content: space-around;
+    height: fit-content;
+    flex-wrap: wrap;
+  }
+
+  #albums_container {
+    grid-area: albums_container;
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-areas: 
+    "a b c";
+  }
+} */

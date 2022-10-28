@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script> -->
+    <script src="./javascripts/script.js"></script>
+    <link rel="stylesheet" href="./stylesheets/style.css">
+    <title>Album</title>
+</head>
+<body onload="init()">
+    <div class="header">
+        <div id="title">
+            <h1>Album</h1>
+        </div>
+        <div id="login_container">
+            <div id="login_form">
+                <label for="username">username</label>
+                <input type="text" name="username" id="username">
+                <label for="password">password</label>
+                <input type="password" name="password" id="password">
+            </div>
+            <p id="greetings" class="hide"></p>
+            <button id="login" type="button" onclick="login()">log in</button>
+            <button id="logout" class="hide" type="button" onclick="logout()">log out</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div id="friends_list">
+        </div>
+        <div id="albums_container">
+            <input type="hidden" id="album_showing" value="">
+            <div id="media_container"></div>
+            <div id="media_navigation" class="hide">
+                <!-- <input type="hidden" id="navigation" name="userid" value=""> -->
+                <a href="javascript:void(0)" id="go-previous">&#60; previous</a>
+                <a href="javascript:void(0)" id="go-next">next></a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
