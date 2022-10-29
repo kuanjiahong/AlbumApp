@@ -51,6 +51,13 @@ function createVideoTag(mediaId, mediaUrl) {
     return vidTag;
 }
 
+function createCrossBtn() {
+    let crossBtn = document.createElement('button');
+    crossBtn.id = "close";
+    crossBtn.innerText = 'X';
+    crossBtn.onclick = handleCrossBtnClicked;
+    return crossBtn;
+}
 
 
 /**
@@ -71,22 +78,22 @@ function handleAlbumClicked(ev) {
     if (!activeAlbum) {
         ev.target.classList.add("active")
     } else {
-        if (activeAlbum.id != ev.target.id) {
+        if (activeAlbum.id !== ev.target.id) {
             activeAlbum.classList.remove("active")
             ev.target.classList.add("active");
         }
     }
-    localStorage.setItem('currentPageNumber', 0)
+    localStorage.setItem('currentPageNumber', "0")
     loadAlbum(ev, Number(localStorage.currentPageNumber));
 }
 
 function handlePreviousClicked(ev) {
-    localStorage.setItem('currentPageNumber', Number(localStorage.currentPageNumber) - 1);
+    localStorage.setItem('currentPageNumber', String(Number(localStorage.currentPageNumber) - 1));
     loadAlbum(ev, Number(localStorage.currentPageNumber));
 }
 
 function handleNextClicked(ev) {
-    localStorage.setItem('currentPageNumber', Number(localStorage.currentPageNumber) + 1);
+    localStorage.setItem('currentPageNumber', String(Number(localStorage.currentPageNumber) + 1));
     loadAlbum(ev, Number(localStorage.currentPageNumber));
 }
 
@@ -100,10 +107,7 @@ function handleCrossBtnClicked(ev) {
  */
 function displayPhoto(ev) {
     let clickedPhoto = ev.currentTarget;
-    let crossBtn = document.createElement('button');
-    crossBtn.id = "close";
-    crossBtn.innerText = 'X';
-    crossBtn.onclick = handleCrossBtnClicked;
+    let crossBtn = createCrossBtn();
     document.getElementById('media_container').innerHTML = "";
     document.getElementById('media_navigation').classList.add('hide');
     document.getElementById('media_container').appendChild(crossBtn);
@@ -169,12 +173,12 @@ function loadAlbum(ev, pageNum) {
                 }
 
                 
-                // append <p> containing like message if it exist
-                if (obj.likedby.length != 0) {
+                // append <p> containing like message if it exists
+                if (obj.likedby.length !== 0) {
                     let paragraphTag = document.createElement("p");
                     let message = "";
                     for (let i = 0; i < obj.likedby.length; i++) {
-                        if (i == obj.likedby.length - 1) {
+                        if (i === obj.likedby.length - 1) {
                             message += obj.likedby[i] + " liked this " + endingMessage;
                         } else {
                             message += obj.likedby[i] + ", ";
@@ -214,7 +218,7 @@ function loadAlbum(ev, pageNum) {
 
     }
 
-    let userid = "";
+    let userid;
 
     if (ev.target.id === "go-previous" || ev.target.id === "go-next" || ev.target.id === "close") {
         userid = document.getElementById('album_showing').value;
@@ -246,7 +250,7 @@ function addFriendsList(friendsList) {
     hiddenTag.value = myAlbum.id 
     myAlbum.appendChild(hiddenTag);
     document.getElementById('friends_list').appendChild(myAlbum);
-    for (var idx in friendsList) {
+    for (const idx in friendsList) {
         let divTag = document.createElement('div');
         divTag.id = friendsList[idx][1]
         divTag.classList.add('friend');
@@ -301,7 +305,7 @@ function login() {
                 console.log("Login successfully");
                 let responseData = JSON.parse(xhr.response);
                 localStorage.setItem("currentUsername", responseData.currentUsername);
-                localStorage.setItem("currentPageNumber", 0)
+                localStorage.setItem("currentPageNumber", "0")
                 let friendsList = responseData.friendsList;
                 addFriendsList(friendsList);
                 hideLoginForm();

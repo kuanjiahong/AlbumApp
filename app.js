@@ -8,7 +8,6 @@ let app = express();
 
 // database
 let monk = require('monk');
-const { query } = require('express');
 const mongodbServerURL = 'localhost:27017/assignment1';
 let db = monk(mongodbServerURL);
 
@@ -32,52 +31,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
   res.send('hello');
 })
-
-
-//backup
-/*
-app.get('/load', (req, res) => {
-  if (!req.cookies.user_id) {
-    res.send('')
-    return;
-  }
-
-  const uid = req.cookies.user_id
-  let userListCol = req.db.get('userList');
-  let currentUser; // to store the current user json object
-  let data; // data to be sent to frontend
-  let friendsList = []; // a 2d array storing [[friend name, friend id], ...]
-  let userExist = false;
-
-  userListCol.find({}).then((docs)=>{
-
-    // loop through array of users to find the logged in user
-    docs.forEach(elem => {
-      if (elem._id === uid) {
-        userExist = true;
-        currentUser = elem;
-      }
-    })
-
-    if (!userExist) {
-      res.send('');
-      return;
-    }
-
-    let friendsNames = currentUser.friends;
-    // find current user's friends' id
-    docs.forEach(elem => {
-      if (friendsNames.includes(elem.username)) {
-        friendsList.push([elem.username, elem._id]);
-      }
-    })
-
-    data = {currentUsername: currentUser.username, friendsList: friendsList}
-    res.json(data);
-
-  })
-})
-*/
 
 
 app.get('/load', (req, res) => {
