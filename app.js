@@ -1,4 +1,3 @@
-let createError = require('http-errors');
 let express = require('express');
 let path = require('path');
 let cookieParser = require('cookie-parser');
@@ -16,12 +15,7 @@ app.use((req, res, next) => {
   next();
 })
 
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
-app.use(logger('dev'));
+// app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -173,32 +167,40 @@ app.get('/getalbum', (req, res) => {
 })
 
 app.post('/postlike', (req, res) => {
-  const mediaId = monk.id(req.body.id); // cast the string to an ObjectId
+  const mediaId = monk.id(req.body.photovideoid); // cast the string to an ObjectId
   let userWhoLikedId = req.cookies.user_id;
   let userWhoLikedName;
   let responseData;
+  let updatedLikedByArray;
   let userListCol = req.db.get('userList');
   let mediaListCol = req.db.get('mediaList');
+  console.log("The photovideoid:", mediaId);
+
   userListCol.findOne({_id: userWhoLikedId}).then((userWhoLiked)=>{
     if (!userWhoLiked) {
+      console.log("Unable to find user who liked");
       throw new Error("Unable to find user who liked");
     }
     userWhoLikedName = userWhoLiked.username;
     return mediaListCol.findOne({_id: mediaId})
   }).then((queryResult)=> {
-    console.log("Query result", queryResult)
+    console.log("Query result liked by array", queryResult.likedby);
     if(queryResult.likedby.includes(userWhoLikedName)) {
       console.log("this user has already liked before");
       return queryResult.likedby;
     } else {
       console.log("this user has not liked before");
-      return queryResult.likedby.push(userWhoLikedName);
+      let existingArray = queryResult.likedby;
+      existingArray.push(userWhoLikedName);
+      return existingArray;
     }
   }).then((likedbyArray)=> {
-    return mediaListCol.findOneAndUpdate({_id: mediaId}, {$set: {likedby: likedbyArray}})
-  }).then((updatedDoc) => {
-    console.log("Updated doc", updatedDoc);
-    responseData = {likedby: updatedDoc.likedby}
+    console.log("likedbyArray:",likedbyArray);
+    updatedLikedByArray = likedbyArray;
+    return mediaListCol.update({_id: mediaId}, {$set: {likedby: likedbyArray}})
+  }).then(() => {
+    console.log("End", updatedLikedByArray);
+    responseData = {likedby: updatedLikedByArray}
     res.json(responseData);
 
   }).catch(err => {
@@ -208,22 +210,6 @@ app.post('/postlike', (req, res) => {
   
 })
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-
-// // error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
 
 const PORT = 8081
 app.listen(PORT, ()=>{
@@ -233,5 +219,3 @@ app.listen(PORT, ()=>{
   })
 
 })
-
-module.exports = app;

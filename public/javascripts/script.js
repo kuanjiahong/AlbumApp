@@ -34,20 +34,24 @@ function showLoggedOutState() {
 
 function createImageTag(mediaId, mediaUrl) {
     let imgTag = document.createElement('img');
+    imgTag.classList.add('clickable');
     imgTag.src = mediaUrl;
     imgTag.id = mediaId;
     imgTag.height = 500;
     imgTag.width = 500;
+    imgTag.onclick = displayPhoto;
     return imgTag;
 }
 
 function createVideoTag(mediaId, mediaUrl) {
     let vidTag = document.createElement('video');
+    vidTag.classList.add('clickable');
     vidTag.src = mediaUrl;
     vidTag.id = mediaId;
     vidTag.controls = true;
     vidTag.height = 500;
     vidTag.width = 500;
+    vidTag.onclick = displayVideo;
     return vidTag;
 }
 
@@ -72,6 +76,8 @@ function handleAlbumClicked(ev) {
     console.log("handleAlbumClicked(): clicked");
     let activeAlbum = null;
     let childrenNodes = document.getElementById("friends_list").children;
+
+    // find active class
     for (let element of childrenNodes) {
         if (element.classList.contains("active")) {
             activeAlbum = element;
@@ -105,19 +111,51 @@ function handleCloseBtnClicked(ev) {
     loadAlbum(ev, Number(localStorage.currentPageNumber));
 }
 
+function handleLike(ev) {
+    let xhr = new XMLHttpRequest();
+    const likedphotovideoid = ev.target.id.slice(5) // this will remove the "like_" prefix
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            let likedby = JSON.parse(xhr.response).likedby;
+            let paragraphTag = document.getElementById("likedby_" + likedphotovideoid);
+            let endingMessage = document.getElementById(likedphotovideoid).tagName === "IMG" ? "photo" : "video";
+            if (likedby.length !== 0) {
+                let message = "";
+                for (let i = 0; i < likedby.length; i++) {
+                    if (i === likedby.length - 1) {
+                        message += likedby[i] + " liked this " + endingMessage;
+                    } else {
+                        message += likedby[i] + ", ";
+                    }
+                }
+                paragraphTag.innerHTML = message;
+            }
+        }
+    }
+    const method = "POST";
+    const url = "http://localhost:8081/postlike";
+    xhr.open(method, url, true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    const responseBody = "photovideoid=" + likedphotovideoid;
+    xhr.send(responseBody);
+}
+
 /**
  * Enlarge photo when user click the photo
  * @param {MouseEvent} ev when user clicked the image 
  */
 function displayPhoto(ev) {
     console.log('photo clicked')
-    let clickedPhoto = ev.currentTarget;
+    let clickedPhotoContainer = document.getElementById('container_' + ev.target.id);
+    let clickedPhoto = document.getElementById(ev.target.id);
+    clickedPhoto.removeAttribute('height');
+    clickedPhoto.removeAttribute('width');
     let closeBtn = createCloseBtn();
-    document.getElementById('media_container').innerHTML = "";
     document.getElementById('media_navigation').classList.add('hide');
+    document.getElementById('media_container').innerHTML = "";
     document.getElementById('media_container').classList.add('enlarged');
     document.getElementById('media_container').appendChild(closeBtn);
-    document.getElementById('media_container').appendChild(clickedPhoto);
+    document.getElementById('media_container').appendChild(clickedPhotoContainer);
 
 }
 
@@ -127,24 +165,28 @@ function displayPhoto(ev) {
  */
 function displayVideo(ev) {
     console.log('video clicked')
-    let clickedVideo = ev.currentTarget;
+    let clickedVideoContainer = document.getElementById('container_' + ev.target.id);
+    let clickedVideo = document.getElementById(ev.target.id);
+    clickedVideo.removeAttribute('height');
+    clickedVideo.removeAttribute('width');
     let closeBtn = createCloseBtn();
     document.getElementById('media_container').innerHTML = "";
     document.getElementById('media_navigation').classList.add('hide');
     document.getElementById('media_container').classList.add('enlarged');
     document.getElementById('media_container').appendChild(closeBtn);
-    document.getElementById('media_container').appendChild(clickedVideo);
+    document.getElementById('media_container').appendChild(clickedVideoContainer);
 }
 
 
 /**
- * Retrieve the user's album from server  and load it onto the website
+ * Retrieve the user's album from server and load it onto the website
  * @param {MouseEvent} ev
  * @param {number} pageNum first page starts with 0
  */
 function loadAlbum(ev, pageNum) {
-    // before loading, clear the container first
+    // before loading, clear the container first and remove the class
     document.getElementById('media_container').innerHTML = "";
+    document.getElementById('media_container').classList = "";
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
@@ -158,6 +200,7 @@ function loadAlbum(ev, pageNum) {
             */
             let totalPages = responseData.totalPages; 
 
+            // Create a div for each obj in the array
             mediaList.forEach(obj => {
                 let mediaFormat = obj.mediaUrl.slice(-3);
                 let endingMessage = "";
@@ -165,22 +208,22 @@ function loadAlbum(ev, pageNum) {
                 // this is the container to contain the <img>/<video> and the liked message
                 let divTag = document.createElement('div');
                 divTag.classList.add('media'); // add media class
-
+                divTag.id = "container_" + obj.mediaId;
                 // append <img> or <video> depending on format
                 if (mediaFormat === "jpg") {
                     endingMessage = "photo";
-                    divTag.onclick = displayPhoto;
                     divTag.appendChild(createImageTag(obj.mediaId, obj.mediaUrl));
                 } else if (mediaFormat === "mp4") {
                     endingMessage = "video";
-                    divTag.onclick = displayVideo;
                     divTag.appendChild(createVideoTag(obj.mediaId, obj.mediaUrl));
                 }
 
                 
-                // append <p> containing like message if it exists
+                // append <p> containing like message
+                let paragraphTag = document.createElement("p");
+                paragraphTag.id = "likedby_" + obj.mediaId;
+                paragraphTag.innerHTML = "";
                 if (obj.likedby.length !== 0) {
-                    let paragraphTag = document.createElement("p");
                     let message = "";
                     for (let i = 0; i < obj.likedby.length; i++) {
                         if (i === obj.likedby.length - 1) {
@@ -190,15 +233,27 @@ function loadAlbum(ev, pageNum) {
                         }
                     }
                     paragraphTag.innerHTML = message;
-                    divTag.appendChild(paragraphTag);
                 }
+                divTag.appendChild(paragraphTag);
 
-                // finally append to the album container
+                // create like button if the current album is not my album
+                if (document.getElementById('album_showing').value !== "0") {
+                    console.log("loadAlbum(): This is not my album");
+                    let likedButton = document.createElement('button');
+                    likedButton.classList.add('like_button');
+                    likedButton.id = "like_" + obj.mediaId;
+                    likedButton.innerText = "Like";
+                    likedButton.onclick = handleLike;
+                    divTag.appendChild(likedButton);
+                }
+                
+
+                // Finally, append the div tag append to the album container
                 document.getElementById('media_container').appendChild(divTag);
             });
 
             if (!(pageNum === 0 && pageNum === totalPages)) {
-                console.log("show navigation")
+                console.log("loadAlbum(): show navigation")
                 document.getElementById('media_navigation').classList.remove('hide');
                 let previous = document.getElementById('go-previous');
                 let next = document.getElementById('go-next');
@@ -214,10 +269,12 @@ function loadAlbum(ev, pageNum) {
                 }
 
                 if (!(ev.target.id === 'go-previous' || ev.target.id === "go-next" || ev.target.id === "close")) {
+                    console.log('loadAlbum() onreadystatechange:In navigation, changing the album showing value');
                     document.getElementById('album_showing').value = ev.target.id;
                 }
+                
             } else {
-                console.log("navigation not shown");
+                console.log("loadAlbum(): navigation is not shown");
             }
         }
 
@@ -226,8 +283,11 @@ function loadAlbum(ev, pageNum) {
     let userid;
 
     if (ev.target.id === "go-previous" || ev.target.id === "go-next" || ev.target.id === "close") {
+        console.log('loadAlbum(): one of the buttons is clicked');
         userid = document.getElementById('album_showing').value;
     } else {
+        console.log('loadAlbum(): The album list is clicked');
+        document.getElementById('album_showing').value = ev.target.id;
         userid = ev.target.id;
     }
 
@@ -250,10 +310,6 @@ function addFriendsList(friendsList) {
     myAlbum.classList.add('friend');
     myAlbum.onclick = handleAlbumClicked;
     myAlbum.innerText = "My Album";
-    let hiddenTag = document.createElement('input');
-    hiddenTag.type = "hidden";
-    hiddenTag.value = myAlbum.id 
-    myAlbum.appendChild(hiddenTag);
     document.getElementById('friends_list').appendChild(myAlbum);
     for (const idx in friendsList) {
         let divTag = document.createElement('div');
@@ -262,10 +318,6 @@ function addFriendsList(friendsList) {
         divTag.onclick = handleAlbumClicked;
         let lastChar = friendsList[idx][0].slice(-1);
         divTag.innerText = lastChar === "s" ? friendsList[idx][0] + "' Album" : friendsList[idx][0] + "'s Album"
-        let hiddenTag = document.createElement('input')
-        hiddenTag.type = "hidden"
-        hiddenTag.value = divTag.id
-        divTag.append(hiddenTag);
         document.getElementById('friends_list').appendChild(divTag);
     }
 }
