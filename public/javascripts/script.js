@@ -51,12 +51,15 @@ function createVideoTag(mediaId, mediaUrl) {
     return vidTag;
 }
 
-function createCrossBtn() {
-    let crossBtn = document.createElement('button');
-    crossBtn.id = "close";
-    crossBtn.innerText = 'X';
-    crossBtn.onclick = handleCrossBtnClicked;
-    return crossBtn;
+function createCloseBtn() {
+    let closeBtnContainer = document.createElement('div');
+    closeBtnContainer.id = "close_button_container";
+    let closeBtn = document.createElement('button');
+    closeBtn.id = "close";
+    closeBtn.innerText = 'X';
+    closeBtn.onclick = handleCloseBtnClicked;
+    closeBtnContainer.appendChild(closeBtn);
+    return closeBtnContainer;
 }
 
 
@@ -97,7 +100,8 @@ function handleNextClicked(ev) {
     loadAlbum(ev, Number(localStorage.currentPageNumber));
 }
 
-function handleCrossBtnClicked(ev) {
+function handleCloseBtnClicked(ev) {
+    document.getElementById('media_container').classList.remove('enlarged');
     loadAlbum(ev, Number(localStorage.currentPageNumber));
 }
 
@@ -106,11 +110,13 @@ function handleCrossBtnClicked(ev) {
  * @param {MouseEvent} ev when user clicked the image 
  */
 function displayPhoto(ev) {
+    console.log('photo clicked')
     let clickedPhoto = ev.currentTarget;
-    let crossBtn = createCrossBtn();
+    let closeBtn = createCloseBtn();
     document.getElementById('media_container').innerHTML = "";
     document.getElementById('media_navigation').classList.add('hide');
-    document.getElementById('media_container').appendChild(crossBtn);
+    document.getElementById('media_container').classList.add('enlarged');
+    document.getElementById('media_container').appendChild(closeBtn);
     document.getElementById('media_container').appendChild(clickedPhoto);
 
 }
@@ -120,14 +126,13 @@ function displayPhoto(ev) {
  * @param {MouseEvent} ev when user clicked the video 
  */
 function displayVideo(ev) {
+    console.log('video clicked')
     let clickedVideo = ev.currentTarget;
-    let crossBtn = document.createElement('button');
-    crossBtn.id = "close";
-    crossBtn.innerText = 'X';
-    crossBtn.onclick = handleCrossBtnClicked;
+    let closeBtn = createCloseBtn();
     document.getElementById('media_container').innerHTML = "";
     document.getElementById('media_navigation').classList.add('hide');
-    document.getElementById('media_container').appendChild(crossBtn);
+    document.getElementById('media_container').classList.add('enlarged');
+    document.getElementById('media_container').appendChild(closeBtn);
     document.getElementById('media_container').appendChild(clickedVideo);
 }
 

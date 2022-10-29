@@ -11,6 +11,11 @@ a {
   display: none;
 }
 
+
+#albums_container {
+  min-width: 90%;
+}
+
 .container {
   margin: 10px 0px;
   display: flex;
@@ -69,7 +74,35 @@ a.disabled {
   color: gray;
 }
 
+img, video {
+  width: 100%;
+  max-width: 500px;
+  max-height: 500px;
+}
 
+.enlarged {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.enlarged #close_button_container {
+  text-align: end;
+}
+
+.enlarged #close:hover {
+  cursor: pointer;
+}
+
+.enlarged .media:hover {
+  cursor: default;
+}
+
+.enlarged img, .enlarged video {
+  max-width: 100%;
+  height: auto;
+  max-height: none;
+}
 
 /* Desktop size */
 @media screen and (min-width: 1020px) {
